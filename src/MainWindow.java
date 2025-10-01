@@ -31,6 +31,28 @@ public class MainWindow extends JFrame {
         // событие при выборе даты
         calendar.addPropertyChangeListener("calendar", evt -> loadForSelectedDate());
 
+
+        // Обработчик события нажатия Enter, будучи внутри textArea
+        InputMap inputMap = textArea.getInputMap(JComponent.WHEN_FOCUSED);
+        ActionMap actionMap = textArea.getActionMap();
+
+        // Переопределяем действие на Enter
+        inputMap.put(KeyStroke.getKeyStroke("ENTER"), "insertBullet");
+
+        actionMap.put("insertBullet", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    int pos = textArea.getCaretPosition();
+                    // вставляем символ • и перенос строки
+                    textArea.getDocument().insertString(pos, "\n• ", null);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+
         // 🔹 Проверка сегодняшней даты
         checkTodayPlan();
     }
