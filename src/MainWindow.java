@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Set;
 
 public class MainWindow extends JFrame {
@@ -35,6 +36,27 @@ public class MainWindow extends JFrame {
         // Обработчик события нажатия Enter, будучи внутри textArea
         InputMap inputMap = textArea.getInputMap(JComponent.WHEN_FOCUSED);
         ActionMap actionMap = textArea.getActionMap();
+
+        // Если текстовое поле пустое, то вставляем "• " в начало строки
+        textArea.addFocusListener(new java.awt.event.FocusListener() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                // Событие: textArea получил фокус
+                if (textArea.getText().isEmpty()) {
+                    textArea.setText("• ");
+                }
+            }
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                // Событие: textArea потерял фокус
+                if (Objects.equals(textArea.getText(), "• ")) {
+                    textArea.setText("");
+                }
+            }
+        });
+
+
 
         // Переопределяем действие на Enter
         inputMap.put(KeyStroke.getKeyStroke("ENTER"), "insertBullet");
