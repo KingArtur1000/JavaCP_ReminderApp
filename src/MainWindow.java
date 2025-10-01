@@ -1,5 +1,4 @@
 import com.toedter.calendar.JCalendar;
-import org.w3c.dom.css.RGBColor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,7 +14,6 @@ public class MainWindow extends JFrame {
 
     // Множество дат для подсветки и один общий Evaluator
     private Set<String> highlightedDates;
-    private HighlightEvaluator evaluator;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(MainWindow::new);
@@ -32,6 +30,9 @@ public class MainWindow extends JFrame {
         saveButton.addActionListener(this::saveData);
         // событие при выборе даты
         calendar.addPropertyChangeListener("calendar", evt -> loadForSelectedDate());
+
+        // 🔹 Проверка сегодняшней даты
+        checkTodayPlan();
     }
 
 
@@ -130,7 +131,7 @@ public class MainWindow extends JFrame {
         // Применяем особый стиль к датам, где есть запись
         highlightedDates = storage.getAllDates();
         System.out.println(highlightedDates);
-        evaluator = new HighlightEvaluator(highlightedDates);
+        HighlightEvaluator evaluator = new HighlightEvaluator(highlightedDates);
         calendar.getDayChooser().addDateEvaluator(evaluator);
         calendar.getDayChooser().repaint();
         calendar.setFont(new Font("Arial", Font.PLAIN, 18));
@@ -152,4 +153,18 @@ public class MainWindow extends JFrame {
         String text = storage.getByDate(selectedDate);
         textArea.setText(text == null ? "" : text);
     }
+
+    private void checkTodayPlan() {
+        Date today = new Date();
+        String text = storage.getByDate(today);
+        if (text != null && !text.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Сегодня у вас запланировано: " + text,
+                    "Напоминание",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        }
+    }
+
 }

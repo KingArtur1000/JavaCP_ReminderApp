@@ -28,14 +28,13 @@ public class CsvStorage {
         Map<String, String> all = loadAll();
 
         if (text == null || text.isEmpty()) {
-            // если пусто — удаляем запись
             all.remove(dateStr);
         } else {
-            // иначе обновляем/добавляем
-            all.put(dateStr, text);
+            // экранируем переносы строк
+            String escaped = text.replace("\n", "\\n");
+            all.put(dateStr, escaped);
         }
 
-        // Перезаписываем файл
         try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
             writer.println("date;text");
             for (Map.Entry<String, String> entry : all.entrySet()) {
@@ -54,7 +53,9 @@ public class CsvStorage {
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(";", 2);
                 if (parts.length == 2) {
-                    data.put(parts[0], parts[1]);
+                    // при чтении восстанавливаем переносы строк
+                    String restored = parts[1].replace("\\n", "\n");
+                    data.put(parts[0], restored);
                 }
             }
         } catch (IOException e) {
@@ -62,6 +63,7 @@ public class CsvStorage {
         }
         return data;
     }
+
 
     public String getByDate(Date date) {
         String key = dateFormat.format(date);
