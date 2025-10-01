@@ -24,7 +24,6 @@ public class MainWindow {
     public MainWindow() {
         initUI();
 
-
         saveButton.addActionListener(this::saveData);
         // событие при выборе даты
         calendar.addPropertyChangeListener("calendar", evt -> loadForSelectedDate());
@@ -59,7 +58,6 @@ public class MainWindow {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
 
-
         // Левая часть: календарь
         calendar = new JCalendar();
         JPanel calendarPanel = new JPanel(new BorderLayout());
@@ -75,6 +73,7 @@ public class MainWindow {
         saveButton = new JButton("Сохранить");
         saveButton.setBackground(new Color(95, 212, 124));
         saveButton.setForeground(Color.WHITE);
+        saveButton.setFont(new Font("Arial", Font.PLAIN, 18));
 
         // Разделитель правой части: сверху - окно ввода текста, снизу - кнопка сохранения
         JSplitPane rightPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollPane, saveButton);
