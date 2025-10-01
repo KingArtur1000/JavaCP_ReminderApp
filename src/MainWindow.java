@@ -41,12 +41,12 @@ public class MainWindow {
 
         if (text.isEmpty()) {
             highlightedDates.remove(dateKey); // убираем подсветку
+            calendar.setCalendar(calendar.getCalendar()); // форс обновления
         } else {
             highlightedDates.add(dateKey);    // добавляем подсветку
+            calendar.setCalendar(calendar.getCalendar()); // форс обновления
         }
 
-        calendar.getDayChooser().repaint();
-        calendar.repaint();
 
         JOptionPane.showMessageDialog(null, text.isEmpty() ? "Удалено!" : "Сохранено!");
     }
@@ -102,8 +102,11 @@ public class MainWindow {
         evaluator = new HighlightEvaluator(highlightedDates);
         calendar.getDayChooser().addDateEvaluator(evaluator);
         calendar.getDayChooser().repaint();
+        calendar.setFont(new Font("Arial", Font.PLAIN, 18));
         calendar.revalidate();
         calendar.repaint();
+        calendar.setCalendar(calendar.getCalendar()); // форс обновления
+
 
         // Добавляем на форму основной splitPane и отображаем на форме :)
         frame.add(splitPane, BorderLayout.CENTER);

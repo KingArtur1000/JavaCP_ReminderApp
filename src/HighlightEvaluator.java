@@ -19,14 +19,15 @@ public class HighlightEvaluator implements IDateEvaluator {
 
     @Override
     public Color getSpecialForegroundColor() {
-        return Color.WHITE;
+        return new Color(0, 255, 56); // тёмно‑зелёный текст
     }
 
-    // В JCalendar 1.4 именно "Backround" (с опечаткой)
+
     @Override
     public Color getSpecialBackroundColor() {
-        return new Color(95, 212, 124); // зелёный фон
+        return null; // фон не трогаем, чтобы не конфликтовать с выбором
     }
+
 
     @Override
     public String getSpecialTooltip() {
@@ -35,6 +36,7 @@ public class HighlightEvaluator implements IDateEvaluator {
 
     @Override public boolean isInvalid(Date date) { return false; }
     @Override public Color getInvalidForegroundColor() { return null; }
+    // Да-да опечатка - BackroundColor !!!
     @Override public Color getInvalidBackroundColor() { return null; }
     @Override public String getInvalidTooltip() { return null; }
 }
