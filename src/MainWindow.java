@@ -7,7 +7,7 @@ import java.awt.event.ActionEvent;
 import java.util.Date;
 import java.util.Set;
 
-public class MainWindow {
+public class MainWindow extends JFrame {
     private final CsvStorage storage = new CsvStorage("data.csv");
     private JCalendar calendar;
     private JTextArea textArea;
@@ -22,6 +22,11 @@ public class MainWindow {
     }
 
     public MainWindow() {
+        setTitle("Каталог компьютерной техники");
+        setSize(800, 600);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
         initUI();
 
         saveButton.addActionListener(this::saveData);
@@ -51,18 +56,45 @@ public class MainWindow {
     }
 
 
+    private JMenuBar getBar() {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu settingsMenu = new JMenu("Настройки");
+        JMenu whatMenu = new JMenu("?");
+
+        // Меню вкладки -Настройки-
+        JMenuItem fontSizeItem = new JMenuItem("Размер шрифта");
+
+        // Меню вкладки -?-
+        JMenuItem aboutAuthorItem = new JMenuItem("Об авторе");
+
+        // Привязываемся к событиям
+        aboutAuthorItem.addActionListener(e -> {JOptionPane.showMessageDialog(this, "Автор: Борсук Р.А.!");});
+        fontSizeItem.addActionListener(e -> {
+            FontSizeChangerFormDialog dialog = new FontSizeChangerFormDialog(this, saveButton, calendar);
+            dialog.setVisible(true);
+        });
+
+        // Привязываем элементы к вкладке -Настройки-
+        settingsMenu.add(fontSizeItem);
+
+        // Привязываем элементы к вкладке -?-
+        whatMenu.add(aboutAuthorItem);
+
+        // Привязываем вкладки к панели меню
+        menuBar.add(settingsMenu);
+        menuBar.add(whatMenu);
+        return menuBar;
+    }
+
+
     private void initUI() {
-        // Параметры окна
-        JFrame frame = new JFrame("Reminder App");
-        frame.setSize(800, 600);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
+        // Создание объектов меню
+        JMenuBar menuBar = getBar();
 
         // Левая часть: календарь
         calendar = new JCalendar();
         JPanel calendarPanel = new JPanel(new BorderLayout());
         calendarPanel.add(calendar, BorderLayout.CENTER);
-
 
         // Правая часть: текст + кнопка
         textArea = new JTextArea();
@@ -77,9 +109,8 @@ public class MainWindow {
 
         // Разделитель правой части: сверху - окно ввода текста, снизу - кнопка сохранения
         JSplitPane rightPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollPane, saveButton);
-        rightPane.setResizeWeight(0.85); // 80% сверху, 20% снизу
+        rightPane.setResizeWeight(0.85); // 85% сверху, 15% снизу
         rightPane.setOneTouchExpandable(false);
-
 
         // Главный SplitPane: делим окно на 2 части:
         JSplitPane splitPane = new JSplitPane(
@@ -108,8 +139,10 @@ public class MainWindow {
 
 
         // Добавляем на форму основной splitPane и отображаем на форме :)
-        frame.add(splitPane, BorderLayout.CENTER);
-        frame.setVisible(true);
+        add(splitPane, BorderLayout.CENTER);
+        setVisible(true);
+
+        setJMenuBar(menuBar);
     }
 
 
