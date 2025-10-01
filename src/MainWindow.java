@@ -174,7 +174,6 @@ public class MainWindow extends JFrame {
 
         // Применяем особый стиль к датам, где есть запись
         highlightedDates = storage.getAllDates();
-        System.out.println(highlightedDates);
         HighlightEvaluator evaluator = new HighlightEvaluator(highlightedDates);
         calendar.getDayChooser().addDateEvaluator(evaluator);
         calendar.getDayChooser().repaint();
