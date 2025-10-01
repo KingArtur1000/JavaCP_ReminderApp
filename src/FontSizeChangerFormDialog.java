@@ -8,7 +8,7 @@ import javax.swing.table.JTableHeader;
 public class FontSizeChangerFormDialog extends JDialog {
     private JSlider slider;
 
-    public FontSizeChangerFormDialog(JFrame parent, JButton saveButton, JCalendar calendar) {
+    public FontSizeChangerFormDialog(JFrame parent, JButton saveButton, JCalendar calendar, JTextArea textArea) {
         super(parent, "Изменение размера шрифта", true);
 
         setLayout(new BorderLayout(10, 10));
@@ -24,7 +24,7 @@ public class FontSizeChangerFormDialog extends JDialog {
         // Слушатель изменения значения
         ChangeListener listener = e -> {
             int size = slider.getValue();
-            applyFontSize(saveButton, calendar, size);
+            applyFontSize(saveButton, calendar, textArea, size);
         };
         slider.addChangeListener(listener);
 
@@ -39,8 +39,9 @@ public class FontSizeChangerFormDialog extends JDialog {
     }
 
     /** Метод для применения размера шрифта к таблице */
-    public static void applyFontSize(JButton saveButton, JCalendar calendar, int size) {
+    public static void applyFontSize(JButton saveButton, JCalendar calendar, JTextArea textArea, int size) {
         calendar.setFont(new Font("Arial", Font.PLAIN, size));
         saveButton.setFont(new Font("Arial", Font.PLAIN, size));
+        textArea.setFont(new Font("Arial", Font.PLAIN, size + 4));
     }
 }

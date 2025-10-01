@@ -70,7 +70,7 @@ public class MainWindow extends JFrame {
         // Привязываемся к событиям
         aboutAuthorItem.addActionListener(e -> {JOptionPane.showMessageDialog(this, "Автор: Борсук Р.А.!");});
         fontSizeItem.addActionListener(e -> {
-            FontSizeChangerFormDialog dialog = new FontSizeChangerFormDialog(this, saveButton, calendar);
+            FontSizeChangerFormDialog dialog = new FontSizeChangerFormDialog(this, saveButton, calendar, textArea);
             dialog.setVisible(true);
         });
 
@@ -100,6 +100,7 @@ public class MainWindow extends JFrame {
         textArea = new JTextArea();
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
+        textArea.setFont(new Font("Arial", Font.PLAIN, 22));
         JScrollPane scrollPane = new JScrollPane(textArea);
 
         saveButton = new JButton("Сохранить");
