@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.Date;
+import java.util.Set;
 
 public class MainWindow {
     private final CsvStorage storage = new CsvStorage("data.csv");
@@ -12,12 +13,17 @@ public class MainWindow {
     private JTextArea textArea;
     private JButton saveButton;
 
+    // Множество дат для подсветки и один общий Evaluator
+    private Set<String> highlightedDates;
+    private HighlightEvaluator evaluator;
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(MainWindow::new);
     }
 
     public MainWindow() {
         initUI();
+
 
         saveButton.addActionListener(this::saveData);
         // событие при выборе даты
@@ -28,11 +34,23 @@ public class MainWindow {
     private void saveData(ActionEvent e) {
         Date selectedDate = calendar.getDate();
         String text = textArea.getText().trim();
-        if (!text.isEmpty()) {
-            storage.save(selectedDate, text);
-            JOptionPane.showMessageDialog(null, "Сохранено!");
+
+        storage.save(selectedDate, text);
+
+        String dateKey = new java.text.SimpleDateFormat("yyyy-MM-dd").format(selectedDate);
+
+        if (text.isEmpty()) {
+            highlightedDates.remove(dateKey); // убираем подсветку
+        } else {
+            highlightedDates.add(dateKey);    // добавляем подсветку
         }
+
+        calendar.getDayChooser().repaint();
+        calendar.repaint();
+
+        JOptionPane.showMessageDialog(null, text.isEmpty() ? "Удалено!" : "Сохранено!");
     }
+
 
     private void initUI() {
         // Параметры окна
@@ -77,6 +95,16 @@ public class MainWindow {
         // Загружаем данные для сегодняшней даты
         loadForSelectedDate();
 
+
+        // Применяем особый стиль к датам, где есть запись
+        highlightedDates = storage.getAllDates();
+        System.out.println(highlightedDates);
+        evaluator = new HighlightEvaluator(highlightedDates);
+        calendar.getDayChooser().addDateEvaluator(evaluator);
+        calendar.getDayChooser().repaint();
+        calendar.revalidate();
+        calendar.repaint();
+
         // Добавляем на форму основной splitPane и отображаем на форме :)
         frame.add(splitPane, BorderLayout.CENTER);
         frame.setVisible(true);
@@ -86,6 +114,6 @@ public class MainWindow {
     private void loadForSelectedDate() {
         Date selectedDate = calendar.getDate();
         String text = storage.getByDate(selectedDate);
-        textArea.setText(text);
+        textArea.setText(text == null ? "" : text);
     }
 }
