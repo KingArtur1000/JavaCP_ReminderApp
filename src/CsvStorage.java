@@ -74,4 +74,40 @@ public class CsvStorage {
         return new HashSet<>(loadAll().keySet());
     }
 
+
+    public Map<Date, String> getAllAsDates() {
+        Map<Date, String> result = new TreeMap<>();
+        Map<String, String> all = loadAll();
+        for (Map.Entry<String, String> entry : all.entrySet()) {
+            try {
+                Date d = dateFormat.parse(entry.getKey());
+                result.put(d, entry.getValue());
+            } catch (Exception ignored) {}
+        }
+        return result;
+    }
+
+    public Map<Date, String> getByPeriod(Date from, Date to) {
+        Map<Date, String> all = getAllAsDates();
+        Map<Date, String> result = new LinkedHashMap<>();
+        for (Map.Entry<Date, String> entry : all.entrySet()) {
+            Date d = entry.getKey();
+            if (!d.before(from) && !d.after(to)) {
+                result.put(d, entry.getValue());
+            }
+        }
+        return result;
+    }
+
+    public Map.Entry<Date, String> getNearestFutureDate(Date from) {
+        Map<Date, String> all = getAllAsDates();
+        for (Map.Entry<Date, String> entry : all.entrySet()) {
+            if (!entry.getKey().before(from)) {
+                return entry; // TreeMap гарантирует ближайшую
+            }
+        }
+        return null;
+    }
+
+
 }

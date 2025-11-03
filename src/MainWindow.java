@@ -3,7 +3,9 @@ import com.toedter.calendar.JCalendar;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -104,6 +106,7 @@ public class MainWindow extends JFrame {
     private JMenuBar getBar() {
         JMenuBar menuBar = new JMenuBar();
         JMenu settingsMenu = new JMenu("Настройки");
+        JMenu extraMenu = new JMenu("Дополнительно");
         JMenu whatMenu = new JMenu("?");
 
         // Меню вкладки -Настройки-
@@ -111,6 +114,16 @@ public class MainWindow extends JFrame {
 
         // Меню вкладки -?-
         JMenuItem aboutAuthorItem = new JMenuItem("Об авторе");
+
+        // Меню вкладки -Дополнительно-
+        JMenuItem listItem = new JMenuItem("Список памятных дат");
+        listItem.addActionListener(e -> showDatesList());
+        extraMenu.add(listItem);
+
+        JMenuItem nearestItem = new JMenuItem("Ближайшая памятная дата");
+        nearestItem.addActionListener(e -> showNearestDate());
+        extraMenu.add(nearestItem);
+
 
         // Привязываемся к событиям
         aboutAuthorItem.addActionListener(e -> {JOptionPane.showMessageDialog(this, "Автор: Борсук Р.А.!");});
@@ -127,6 +140,7 @@ public class MainWindow extends JFrame {
 
         // Привязываем вкладки к панели меню
         menuBar.add(settingsMenu);
+        menuBar.add(extraMenu);
         menuBar.add(whatMenu);
         return menuBar;
     }
@@ -209,5 +223,43 @@ public class MainWindow extends JFrame {
             );
         }
     }
+
+    private void showDatesList() {
+        // Для простоты пока берём все даты (можно расширить до выбора диапазона)
+        Map<Date, String> data = storage.getAllAsDates();
+        if (data.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Нет памятных дат.");
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+        for (Map.Entry<Date, String> entry : data.entrySet()) {
+            sb.append(fmt.format(entry.getKey()))
+                    .append(" — ")
+                    .append(entry.getValue())
+                    .append("\n");
+        }
+
+        JOptionPane.showMessageDialog(this, sb.toString(), "Список памятных дат", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void showNearestDate() {
+        Map.Entry<Date, String> nearest = storage.getNearestFutureDate(new Date());
+        if (nearest == null) {
+            JOptionPane.showMessageDialog(this, "Ближайших дат нет.");
+            return;
+        }
+
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+        JOptionPane.showMessageDialog(
+                this,
+                "Ближайшая дата: " + fmt.format(nearest.getKey()) +
+                        "\nЗапланировано: " + nearest.getValue(),
+                "Напоминание",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
 
 }
