@@ -12,15 +12,59 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Главное окно приложения "Каталог компьютерной техники".
+ * <p>
+ * Реализует графический интерфейс с календарём, текстовой областью для заметок
+ * и меню управления. Поддерживает сохранение и загрузку данных в формате CSV,
+ * подсветку дат с записями, а также напоминания о ближайших событиях.
+ * </p>
+ *
+ * Основные возможности:
+ * <ul>
+ *     <li>Выбор даты в календаре и работа с заметками для этой даты.</li>
+ *     <li>Сохранение заметок в файл {@code data.csv} или экспорт в другой CSV.</li>
+ *     <li>Загрузка данных из выбранного CSV-файла.</li>
+ *     <li>Подсветка дат с записями.</li>
+ *     <li>Меню с настройками (изменение размера шрифта), списком памятных дат и информацией об авторе.</li>
+ *     <li>Отображение SplashScreen при запуске.</li>
+ * </ul>
+ */
 public class MainWindow extends JFrame {
+    /**
+     * Хранилище данных по умолчанию (файл {@code data.csv}).
+     */
     private final CsvStorage storage = new CsvStorage("data.csv");
+
+    /**
+     * Компонент календаря для выбора даты.
+     */
     private JCalendar calendar;
+
+    /**
+     * Текстовая область для ввода заметок.
+     */
     private JTextArea textArea;
+
+    /**
+     * Кнопка сохранения заметки.
+     */
     private JButton saveButton;
 
-    // Множество дат для подсветки и один общий Evaluator
+    /**
+     * Множество дат, для которых есть записи (используется для подсветки).
+     */
     private Set<String> highlightedDates;
 
+    /**
+     * Точка входа в приложение.
+     * <p>
+     * Сначала отображает {@link SplashScreenWindow}, затем через 3 секунды
+     * открывает основное окно {@link MainWindow}.
+     * </p>
+     *
+     * @param args аргументы командной строки (не используются)
+     */
     public static void main(String[] args) {
         SplashScreenWindow splash = new SplashScreenWindow();
         splash.setVisible(true);
@@ -38,8 +82,13 @@ public class MainWindow extends JFrame {
     }
 
 
-
-
+    /**
+     * Конструктор главного окна.
+     * <p>
+     * Инициализирует интерфейс, настраивает обработчики событий
+     * и проверяет наличие заметки на сегодняшнюю дату.
+     * </p>
+     */
     public MainWindow() {
         setTitle("Каталог компьютерной техники");
         setSize(800, 600);
@@ -100,6 +149,12 @@ public class MainWindow extends JFrame {
     }
 
 
+    /**
+     * Сохраняет данные для выбранной даты в {@code data.csv}.
+     * Обновляет подсветку дат и показывает сообщение пользователю.
+     *
+     * @param e событие нажатия кнопки
+     */
     private void saveData(ActionEvent e) {
         Date selectedDate = calendar.getDate();
         String text = textArea.getText().trim();
@@ -120,7 +175,20 @@ public class MainWindow extends JFrame {
         JOptionPane.showMessageDialog(null, text.isEmpty() ? "Удалено!" : "Сохранено!");
     }
 
-
+    /**
+     * Создаёт и настраивает меню приложения.
+     * <p>
+     * Включает вкладки:
+     * <ul>
+     *     <li>Файл (сохранение, загрузка, выход)</li>
+     *     <li>Настройки (изменение размера шрифта)</li>
+     *     <li>Дополнительно (список дат, ближайшая дата)</li>
+     *     <li>? (об авторе)</li>
+     * </ul>
+     * </p>
+     *
+     * @return панель меню {@link JMenuBar}
+     */
     private JMenuBar getBar() {
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("Файл");
@@ -263,6 +331,16 @@ public class MainWindow extends JFrame {
     }
 
 
+    /**
+     * Инициализирует графический интерфейс:
+     * <ul>
+     *     <li>Создаёт календарь и текстовую область.</li>
+     *     <li>Добавляет кнопку сохранения.</li>
+     *     <li>Настраивает разделители {@link JSplitPane}.</li>
+     *     <li>Загружает данные для текущей даты.</li>
+     *     <li>Применяет подсветку дат с записями.</li>
+     * </ul>
+     */
     private void initUI() {
         // Создание объектов меню
         JMenuBar menuBar = getBar();
@@ -321,13 +399,19 @@ public class MainWindow extends JFrame {
         setJMenuBar(menuBar);
     }
 
-
+    /**
+     * Загружает заметку для выбранной даты и отображает её в текстовой области.
+     */
     private void loadForSelectedDate() {
         Date selectedDate = calendar.getDate();
         String text = storage.getByDate(selectedDate);
         textArea.setText(text == null ? "" : text);
     }
 
+    /**
+     * Проверяет наличие заметки на сегодняшнюю дату.
+     * Если заметка есть — показывает напоминание.
+     */
     private void checkTodayPlan() {
         Date today = new Date();
         String text = storage.getByDate(today);
@@ -341,6 +425,9 @@ public class MainWindow extends JFrame {
         }
     }
 
+    /**
+     * Показывает список всех памятных дат в диалоговом окне.
+     */
     private void showDatesList() {
         // Для простоты пока берём все даты (можно расширить до выбора диапазона)
         Map<Date, String> data = storage.getAllAsDates();
@@ -361,6 +448,9 @@ public class MainWindow extends JFrame {
         JOptionPane.showMessageDialog(this, sb.toString(), "Список памятных дат", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Показывает ближайшую будущую памятную дату.
+     */
     private void showNearestDate() {
         Map.Entry<Date, String> nearest = storage.getNearestFutureDate(new Date());
         if (nearest == null) {
@@ -377,6 +467,5 @@ public class MainWindow extends JFrame {
                 JOptionPane.INFORMATION_MESSAGE
         );
     }
-
-
+    
 }
