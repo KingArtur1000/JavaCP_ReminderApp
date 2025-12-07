@@ -1,7 +1,24 @@
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Класс для отображения стартового окна (Splash Screen) при запуске приложения.
+ * Используется для демонстрации информации о курсовом проекте перед открытием
+ * основного окна {@link MainWindow}.
+ *
+ * В окне отображается текст:
+ * <pre>
+ * Курсовой проект
+ * Борсук Ростислав Александрович
+ * гр. 10702423
+ * </pre>
+ */
 public class SplashScreenWindow extends JWindow {
+
+    /**
+     * Конструктор. Создаёт окно SplashScreen с текстовой панелью,
+     * устанавливает размеры и позицию по центру экрана.
+     */
     public SplashScreenWindow() {
         // Панель с текстом
         JPanel panel = new JPanel(new BorderLayout());
@@ -22,6 +39,16 @@ public class SplashScreenWindow extends JWindow {
         setLocationRelativeTo(null);
     }
 
+    /**
+     * Отображает SplashScreen на указанное количество миллисекунд,
+     * затем скрывает и освобождает ресурсы окна.
+     *
+     * <p><b>Важно:</b> использование {@link Thread#sleep(long)} блокирует поток
+     * отрисовки Swing (EDT), поэтому рекомендуется вызывать этот метод
+     * в отдельном потоке или использовать {@link javax.swing.Timer}.</p>
+     *
+     * @param millis время отображения окна в миллисекундах
+     */
     public void showSplash(int millis) {
         setVisible(true);
         try {
