@@ -225,7 +225,41 @@ public class MainWindow extends JFrame {
             FontSizeChangerFormDialog dialog = new FontSizeChangerFormDialog(this, saveButton, calendar, textArea);
             dialog.setVisible(true);
         });
-        exitProgram.addActionListener(e -> System.exit(0));
+        exitProgram.addActionListener(e -> {
+            int choice = JOptionPane.showConfirmDialog(
+                    this,
+                    "Хотите сохранить изменения перед выходом?",
+                    "Выход",
+                    JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (choice == JOptionPane.YES_OPTION) {
+                // сохраняем текущую дату и текст в data.csv
+                File file = new File("data.csv");
+                CsvStorage defaultStorage = new CsvStorage(file.getAbsolutePath());
+
+                Date selectedDate = calendar.getDate();
+                String text = textArea.getText().trim();
+                defaultStorage.save(selectedDate, text);
+
+                // обновляем подсветку
+                String dateKey = new SimpleDateFormat("yyyy-MM-dd").format(selectedDate);
+                if (text.isEmpty()) {
+                    highlightedDates.remove(dateKey);
+                } else {
+                    highlightedDates.add(dateKey);
+                }
+                calendar.setCalendar(calendar.getCalendar());
+
+                JOptionPane.showMessageDialog(this, "Данные сохранены в data.csv");
+                System.exit(0);
+            } else if (choice == JOptionPane.NO_OPTION) {
+                System.exit(0);
+            }
+            // если Cancel — ничего не делаем
+        });
+
         fileSave.addActionListener(e -> {
             // всегда сохраняем в data.csv в рабочей папке
             File file = new File("data.csv");
@@ -467,5 +501,5 @@ public class MainWindow extends JFrame {
                 JOptionPane.INFORMATION_MESSAGE
         );
     }
-    
+
 }
