@@ -22,8 +22,23 @@ public class MainWindow extends JFrame {
     private Set<String> highlightedDates;
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(MainWindow::new);
+        SplashScreenWindow splash = new SplashScreenWindow();
+        splash.setVisible(true);
+
+        // отдельный поток, чтобы не блокировать EDT
+        new Thread(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException ignored) {}
+            SwingUtilities.invokeLater(() -> {
+                splash.dispose();
+                new MainWindow();
+            });
+        }).start();
     }
+
+
+
 
     public MainWindow() {
         setTitle("Каталог компьютерной техники");
