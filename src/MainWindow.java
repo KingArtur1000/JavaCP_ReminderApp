@@ -105,6 +105,7 @@ public class MainWindow extends JFrame {
 
     private JMenuBar getBar() {
         JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("Файл");
         JMenu settingsMenu = new JMenu("Настройки");
         JMenu extraMenu = new JMenu("Дополнительно");
         JMenu whatMenu = new JMenu("?");
@@ -120,17 +121,29 @@ public class MainWindow extends JFrame {
         listItem.addActionListener(e -> showDatesList());
         extraMenu.add(listItem);
 
+        //Меню вкладки -Файл-
+        JMenuItem fileSave = new JMenuItem("Сохранить");
+        JMenuItem fileLoadAs = new JMenuItem("Загрузить");
+        JMenuItem exitProgram = new JMenuItem("Выход");
+        exitProgram.setForeground(new Color(220, 53, 69));
+        exitProgram.setFont(new Font("Arial", Font.BOLD, 12));
+
         JMenuItem nearestItem = new JMenuItem("Ближайшая памятная дата");
         nearestItem.addActionListener(e -> showNearestDate());
         extraMenu.add(nearestItem);
 
-
         // Привязываемся к событиям
-        aboutAuthorItem.addActionListener(e -> {JOptionPane.showMessageDialog(this, "Автор: Борсук Р.А.!");});
+        aboutAuthorItem.addActionListener(e -> {JOptionPane.showMessageDialog(this, "Автор: Борсук Р.А.");});
         fontSizeItem.addActionListener(e -> {
             FontSizeChangerFormDialog dialog = new FontSizeChangerFormDialog(this, saveButton, calendar, textArea);
             dialog.setVisible(true);
         });
+        exitProgram.addActionListener(e -> System.exit(0));
+
+        // Привязываем элементы к вкладке -Файл-
+        fileMenu.add(fileSave);
+        fileMenu.add(fileLoadAs);
+        fileMenu.add(exitProgram);
 
         // Привязываем элементы к вкладке -Настройки-
         settingsMenu.add(fontSizeItem);
@@ -139,6 +152,7 @@ public class MainWindow extends JFrame {
         whatMenu.add(aboutAuthorItem);
 
         // Привязываем вкладки к панели меню
+        menuBar.add(fileMenu);
         menuBar.add(settingsMenu);
         menuBar.add(extraMenu);
         menuBar.add(whatMenu);
