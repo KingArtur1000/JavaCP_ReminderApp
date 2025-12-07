@@ -3,6 +3,9 @@ import com.toedter.calendar.JCalendar;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -123,6 +126,7 @@ public class MainWindow extends JFrame {
 
         //Меню вкладки -Файл-
         JMenuItem fileSave = new JMenuItem("Сохранить");
+        JMenuItem fileSaveAs = new JMenuItem("Сохранить как");
         JMenuItem fileLoadAs = new JMenuItem("Загрузить");
         JMenuItem exitProgram = new JMenuItem("Выход");
         exitProgram.setForeground(new Color(220, 53, 69));
@@ -139,9 +143,93 @@ public class MainWindow extends JFrame {
             dialog.setVisible(true);
         });
         exitProgram.addActionListener(e -> System.exit(0));
+        fileSave.addActionListener(e -> {
+            // всегда сохраняем в data.csv в рабочей папке
+            File file = new File("data.csv");
+            CsvStorage defaultStorage = new CsvStorage(file.getAbsolutePath());
+
+            Date selectedDate = calendar.getDate();
+            String text = textArea.getText().trim();
+
+            defaultStorage.save(selectedDate, text);
+
+            // обновляем подсветку
+            String dateKey = new SimpleDateFormat("yyyy-MM-dd").format(selectedDate);
+            if (text.isEmpty()) {
+                highlightedDates.remove(dateKey);
+            } else {
+                highlightedDates.add(dateKey);
+            }
+            calendar.setCalendar(calendar.getCalendar()); // форс обновления
+
+            JOptionPane.showMessageDialog(this, "Данные сохранены в data.csv");
+        });
+
+
+        fileSaveAs.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Сохранить все данные как CSV");
+            chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("CSV файлы", "csv"));
+            chooser.setSelectedFile(new File("data.csv"));
+
+            int result = chooser.showSaveDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File file = chooser.getSelectedFile();
+                String path = file.getAbsolutePath();
+                if (!path.toLowerCase().endsWith(".csv")) {
+                    file = new File(path + ".csv");
+                }
+
+                // Загружаем все данные из текущего storage
+                Map<String, String> allData = storage.loadAll();
+
+                try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
+                    writer.println("date;text");
+                    for (Map.Entry<String, String> entry : allData.entrySet()) {
+                        String escaped = entry.getValue().replace("\n", "\\n");
+                        writer.println(entry.getKey() + ";" + escaped);
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Ошибка при сохранении!", "Ошибка", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                JOptionPane.showMessageDialog(this, "Все данные сохранены в: " + file.getName());
+            }
+        });
+
+
+
+        fileLoadAs.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Загрузить данные из CSV");
+            chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("CSV файлы", "csv"));
+
+            int result = chooser.showOpenDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File file = chooser.getSelectedFile();
+                CsvStorage customStorage = new CsvStorage(file.getAbsolutePath());
+
+                Date selectedDate = calendar.getDate();
+                String text = customStorage.getByDate(selectedDate);
+                textArea.setText(text == null ? "" : text);
+
+                // Обновляем подсветку дат
+                highlightedDates = customStorage.getAllDates();
+                HighlightEvaluator evaluator = new HighlightEvaluator(highlightedDates);
+                calendar.getDayChooser().addDateEvaluator(evaluator);
+                calendar.setCalendar(calendar.getCalendar());
+
+                JOptionPane.showMessageDialog(this, "Данные загружены из: " + file.getName());
+            }
+        });
+
+
 
         // Привязываем элементы к вкладке -Файл-
         fileMenu.add(fileSave);
+        fileMenu.add(fileSaveAs);
         fileMenu.add(fileLoadAs);
         fileMenu.add(exitProgram);
 
