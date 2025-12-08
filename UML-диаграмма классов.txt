@@ -1,0 +1,113 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FEFEFE
+skinparam class {
+    BackgroundColor LightBlue
+    BorderColor Black
+    ArrowColor Black
+}
+
+' Классы
+
+class CsvStorage {
+    - fileName: String
+    - dateFormat: SimpleDateFormat
+    + CsvStorage(fileName: String)
+    - ensureCsvExists(): void
+    + save(date: Date, text: String): void
+    + loadAll(): Map<String, String>
+    + getByDate(date: Date): String
+    + getAllDates(): Set<String>
+    + getAllAsDates(): Map<Date, String>
+    + getByPeriod(from: Date, to: Date): Map<Date, String>
+    + getNearestFutureDate(from: Date): Map.Entry<Date, String>
+}
+
+class MainWindow {
+    - storage: CsvStorage
+    - calendar: JCalendar
+    - textArea: JTextArea
+    - saveButton: JButton
+    - highlightedDates: Set<String>
+    + {static} main(args: String[]): void
+    + MainWindow()
+    - saveData(e: ActionEvent): void
+    - getBar(): JMenuBar
+    - initUI(): void
+    - loadForSelectedDate(): void
+    - checkTodayPlan(): void
+    - showDatesList(): void
+    - showNearestDate(): void
+}
+
+class SplashScreenWindow {
+    + SplashScreenWindow()
+    + showSplash(millis: int): void
+}
+
+class FontSizeChangerFormDialog {
+    - slider: JSlider
+    + FontSizeChangerFormDialog(parent: JFrame, saveButton: JButton, calendar: JCalendar, textArea: JTextArea)
+    + {static} applyFontSize(saveButton: JButton, calendar: JCalendar, textArea: JTextArea, size: int): void
+}
+
+class HighlightEvaluator {
+    - dates: Set<String>
+    - df: SimpleDateFormat
+    + HighlightEvaluator(dates: Set<String>)
+    + isSpecial(date: Date): boolean
+    + getSpecialForegroundColor(): Color
+    + getSpecialBackroundColor(): Color
+    + getSpecialTooltip(): String
+    + isInvalid(date: Date): boolean
+    + getInvalidForegroundColor(): Color
+    + getInvalidBackroundColor(): Color
+    + getInvalidTooltip(): String
+}
+
+interface IDateEvaluator {
+    + isSpecial(date: Date): boolean
+    + getSpecialForegroundColor(): Color
+    + getSpecialBackroundColor(): Color
+    + getSpecialTooltip(): String
+    + isInvalid(date: Date): boolean
+    + getInvalidForegroundColor(): Color
+    + getInvalidBackroundColor(): Color
+    + getInvalidTooltip(): String
+}
+
+' Наследование и зависимости
+JFrame <|-- MainWindow
+JDialog <|-- FontSizeChangerFormDialog
+JWindow <|-- SplashScreenWindow
+IDateEvaluator <|.. HighlightEvaluator
+
+MainWindow "1" *-- "1" CsvStorage : использует
+MainWindow "1" o-- "1" JCalendar : содержит
+MainWindow "1" o-- "1" JTextArea : содержит
+MainWindow "1" o-- "1" JButton : содержит
+MainWindow ..> SplashScreenWindow : создает
+MainWindow ..> FontSizeChangerFormDialog : создает
+MainWindow ..> HighlightEvaluator : создает
+
+FontSizeChangerFormDialog "1" o-- "1" JSlider : содержит
+
+HighlightEvaluator ..> CsvStorage : получает данные
+
+note right of MainWindow
+  Главное окно приложения.
+  Управляет календарем,
+  заметками и меню.
+end note
+
+note right of CsvStorage
+  Хранилище данных в CSV.
+  Управляет сохранением
+  и загрузкой заметок.
+end note
+
+note bottom of HighlightEvaluator
+  Подсветка дат с записями
+  в календаре
+end note
+@enduml
